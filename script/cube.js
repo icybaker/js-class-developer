@@ -53,14 +53,6 @@ class Cube {
         TweenMax.to(this.cubeStruct,60/rpm,{rotationY:360,transformOrigin:this.origin,ease:Power0.easeNone}).repeat(rpt).delay(this.initTime);
     }
 
-    _zOrCalc(x){
-        var pi = Math.PI, faceW = this.faces[0].clientWidth;
-        var dtRad = this.dTheta*(pi/180);
-        var sinT = Math.sin(dtRad), cosT = Math.cos(dtRad);
-        var z = (-(faceW*(1+cosT))/(2*sinT))-x+"px";
-        return z;
-    }
-
     _bindFaces(imLocs){
         var faces = new Array(this.numFaces);
 
@@ -73,4 +65,11 @@ class Cube {
         return faces;
     }
 
+    _zOrCalc(x){
+        var pi = Math.PI, faceW = this.faces[0].clientWidth;
+        var dtRad = this.dTheta*(pi/180);
+        var sinT = Math.sin(dtRad), cosT = Math.cos(dtRad);
+        var z = (-(faceW*(1+cosT))/(2*sinT))-x+"px";
+        return z;
+    }
 }
