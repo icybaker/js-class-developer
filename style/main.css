@@ -28,7 +28,15 @@
     height: 100%;
 }
 
-.nav-menu-container {
+.menu-container {
     display: inline-block;
-    
+    vertical-align: top;
+}
+
+.menu-list-container {
+    display: none;
+}
+
+.menu-label {
+    color: black;
 }

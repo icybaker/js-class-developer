@@ -9,3 +9,21 @@ function setStyles(el,propValArray){
         el.style[propValArray[i][0]] = propValArray[i][1];
     }
 }
+
+function hide(el){
+    //console.log(typeof el);
+    el.style.display = "none";
+}
+function show(el){
+    console.log(el);
+    el.style.display = "block";
+}
+function invert(el){
+    el.style.backgroundColor = "#fffff0";
+    el.style.color = "#000000";
+    console.log("invert")
+}
+function revert(el){
+    el.style.backgroundColor = "transparent";
+    el.style.color = "#fffff0"
+}
