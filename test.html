@@ -1,4 +1,4 @@
-git<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html>
     <head>
@@ -15,17 +15,17 @@ git<!DOCTYPE html>
     <body>
 
         <div class="nav-bar" id="main">
-            <div class="navMenuContainer" id="menu1">
-                <div class="navMenuHead"> Menu Head 1 </div>
-                <div class="navMenuItem"> Item 1 </div>
-                <div class="navMenuItem"> Item 2 </div>
-                <div class="navMenuItem"> Item 3 </div>
+            <div class="nav-menu-container" id="menu1">
+                <div class="nav-menu-head"> Menu Head 1 </div>
+                <div class="nav-menu-item"> Item 1 </div>
+                <div class="nav-menu-item"> Item 2 </div>
+                <div class="nav-menu-item"> Item 3 </div>
             </div>
-            <div class="navMenuContainer" id="menu1">
-                <div class="navMenuHead"> Menu Head 2 </div>
-                <div class="navMenuItem"> Item 1 </div>
-                <div class="navMenuItem"> Item 2 </div>
-                <div class="navMenuItem"> Item 3 </div>
+            <div class="nav-menu-container" id="menu2">
+                <div class="nav-menu-head"> Menu Head 2 </div>
+                <div class="nav-menu-item"> Item 1 </div>
+                <div class="nav-menu-item"> Item 2 </div>
+                <div class="nav-menu-item"> Item 3 </div>
             </div>
         </div>
         <div class="cube-container" id="cc1">
@@ -33,7 +33,7 @@ git<!DOCTYPE html>
         </div>
 
         <script>
-            var navBar = new NavBar(".nav-bar#main")
+            var navBar = new NavBar("#main.nav-bar");
 
             var cube1 = new Cube("cc1",["images/gearLogo.png","images/gsLogo.png","images/labviewLogo.png","images/linuxLogo.png","images/matlabLogo.png","images/ouLogo.png"]);
             cube1.init(3,200);
