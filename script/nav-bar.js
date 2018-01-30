@@ -6,17 +6,37 @@ class NavBar {
         this.menuLabels = this._getMenuLabels(this.menus);
         this.menuLists = this._getMenuLists(this.menuLabels);
         this.menuItems = this._getMenuItems(this.menuLists);
-        //console.log(this.menuItems);
-        this.menuLabels[0].addEventListener("mouseover", show(/*this.menuLists[0])*/document.querySelectorAll("#menu1.menu-list-container")[0]));
-        this.menuLabels[0].addEventListener("mouseout",hide(this.menuLists[0]));
-        console.log(this.menuLabels[0]);
-        //this._setListeners(this.menuLabels,this.menuLists,this.menuItems);
+        //console.log(this.menuLists[0]);
+        //this.menuLabels[0].addEventListener("mouseover", this._showList, false);
+        //this.menuLabels[0].addEventListener("mouseout",this._hideList, false);
+        // console.log(this.menuLabels[0]);
+        this._setListeners(this.menuLabels, this.menuItems);
 
         this.barHeight = this.menus[0].children[0].clientHeight;
 
         this.bar.style.height = this.barHeight + "px";
 
         // console.log(this.menus[0].children[0].nextSibling);
+    }
+
+    _setListeners(labels,items){
+        //console.log(lists);
+        for(var i=0;i<labels.length;i++){
+            labels[i].addEventListener("mouseover",this._showList,false);
+            labels[i].addEventListener("mouseout",this._hideList,false);
+        }
+    }
+
+    _showList(evt){
+        var list = evt.target.nextElementSibling;
+        list.style.display = "block";
+        //console.log(list);
+    }
+
+    _hideList(evt){
+        var list = evt.target.nextElementSibling;
+        list.style.display = "none";
+        //console.log(list);
     }
 
     _getMenuItems(lists){
@@ -42,14 +62,5 @@ class NavBar {
         }
         return labels;
     }
-
-    _setListeners(labels,lists,items){
-        console.log(lists);
-        for(var i=0;i<labels.length;i++){
-            labels[i].addEventListener("mouseover",show(lists[i]));
-            labels[i].addEventListener("mouseout",hide(lists[i]));
-        }
-    }
-
     
 }
