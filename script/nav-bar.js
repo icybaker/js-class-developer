@@ -7,7 +7,7 @@ class NavBar {
         this.menuLists = this._getMenuLists(this.menuLabels);
         this.menuItems = this._getMenuItems(this.menuLists);
         //console.log(this.menuItems);
-        this.menuLabels[0].addEventListener("mouseover", show(/*this.menuLists[0])*/document.querySelectorAll("#menu1.menu-list-container")[0]);
+        this.menuLabels[0].addEventListener("mouseover", show(/*this.menuLists[0])*/document.querySelectorAll("#menu1.menu-list-container")[0]));
         this.menuLabels[0].addEventListener("mouseout",hide(this.menuLists[0]));
         console.log(this.menuLabels[0]);
         //this._setListeners(this.menuLabels,this.menuLists,this.menuItems);
