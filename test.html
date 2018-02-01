@@ -23,7 +23,7 @@
                     <div class="menu-item">Item 3,blankpage.html</div>
                 </div>
             </div>
-            <div class="menu-container">
+            <div class="menu-container right">
                 <div class="menu-label">Menu 2</div>
                 <div class="menu-list-container">
                     <div class="menu-item">Item 1</div>
@@ -46,8 +46,9 @@
         </div>
 
         <script>
-            var navBar = new NavBar("#main.nav-bar");
-            //NavBar._doc_();
+            var navBar = new NavBar("#main.nav-bar",{itemBackgroundColor: "white", textColor: "black", fontSize: "1em"});
+            //console.log(navBar);
+            NavBar._doc_();
             var cube1 = new Cube("cc1",["images/gearLogo.png","images/gsLogo.png","images/labviewLogo.png","images/linuxLogo.png","images/matlabLogo.png","images/ouLogo.png"]);
             cube1.init(3,200);
             cube1.spin(10);
