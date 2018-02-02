@@ -1,5 +1,6 @@
 function setAttrs(el, attrValArray){
-        for(var i=0;i<attrValArray.length;i++){
+    var iLim = attrValArray.length;
+        for(var i=0;i<iLim;i++){
             el.setAttribute(attrValArray[i][0],attrValArray[i][1]);
         }
 }
@@ -23,7 +24,8 @@ function setAttrs2D(elArray, attrValArray){//note that each element in elArray w
 
 function setStyles(el,propValArray){
     //console.log(propValArray);
-    for(var i=0;i<propValArray.length;i++){
+    var iLim = propValArray.length;
+    for(var i=0;i<iLim;i++){
         el.style[propValArray[i][0]] = propValArray[i][1];
     }
 }

@@ -1,62 +1,98 @@
 class NavBar {
     constructor(barContainerSelector,{itemBackgroundColor = '#fff', textColor = '#000', fontSize = '100%'}={}){
-        this.mediaToggle = this._setMediaToggle();
+        this.W = window.innerWidth; 
+        this.H = window.innerHeight;
+        this.mediaToggle = this._setMediaToggle(this.W,this.H);
         this.bar = document.querySelectorAll(barContainerSelector)[0];//1 div
         this.menus = Array.from(this.bar.children);//array of divs
         this.menuLabels = this._getMenuLabels(this.menus);//array of divs
         this.menuLists = this._getMenuLists(this.menuLabels);//array of divs
         this.menuItems = this._getMenuItems(this.menuLists);//array of array (2D) of divs
         this.itemData = this._getItemData(this.menuItems);//3D array of the same cross-section as menuItems, but with each cell storing an array of form [(str)menu-item-text,(str)menu-item-page-src]
-        this.styleData = this._getStyleData(itemBackgroundColor,textColor,fontSize,this.mediaToggle);//object whose properties are 2D arrays of style data for each class in the NavBar structure
-        /* {bg:['backgroundColor',itemBackgroundColor],txtC:['color',textColor],fS:['fontSize',fontSize]}; */
-
-        /*for(var prop in arguments[1]){
-            console.log(typeof prop);
-        }*/
         
+        if(!(this.mediaToggle)){this._setupMenusButton(this.bar,this.menus);}
+        this.styleData = this._getStyleData(itemBackgroundColor,textColor,fontSize);//object whose properties are 2D arrays of style data for each class in the NavBar structure
         this._setStyles(this.styleData,this.bar,this.menus,this.menuLabels,this.menuLists,this.menuItems);
         this._setPageLinks(this.itemData,this.menuItems);
         this._attachListeners(this.menus,this.menuLabels, this.menuItems);
     }
-
     _attachListeners(menus,labels,items){
-        for(var i=0;i<labels.length;i++){
-            labels[i].addEventListener('mouseenter',this._ev_showList,false);
-            menus[i].addEventListener('mouseleave',this._ev_hideList,false);
-        }
-       for(i=0;i<items.length;i++){
-            for(var j=0;j<items[0].length;j++){
-                items[i][j].addEventListener('mouseenter',this._ev_invertTxt,false);
-                items[i][j].addEventListener('mouseleave',this._ev_invertTxt,false);
+        if(this.mediaToggle){//desktop
+            var iLim = labels.length;            
+            for(var i=0;i<iLim;i++){
+                labels[i].addEventListener('mouseenter',this._ev_showList,false);
+                menus[i].addEventListener('mouseleave',this._ev_hideList,false); 
+            }
+            iLim = items.length;
+            var jLim = items[0].length;
+            for(i=0;i<iLim;i++){
+                for(var j=0;j<jLim;j++){
+                    items[i][j].addEventListener('mouseenter',this._ev_invertTxt,false);
+                    items[i][j].addEventListener('mouseleave',this._ev_invertTxt,false);
+                }
             }
         }
-
+        else{//mobile
+            var iLim = labels.length;  
+            for(var i=0;i<iLim;i++){
+                labels[i].addEventListener("click",this._ev_showListM,false);
+                labels[i].addEventListener("click",this._ev_invertTxt,false);
+            }
+            iLim = items.length;
+            var jLim = items[0].length;
+            for(i=0;i<iLim;i++){
+                for(var j=0;j<items[0].length;j++){
+                    items[i][j].addEventListener('click',this._ev_invertTxt,false);
+                }
+            }
+            this.menusButton.addEventListener("click",this._ev_showMenus,false);
+        }
     }
-
+    _ev_showMenus(evt){
+        var menusCon = evt.currentTarget.nextElementSibling;
+        var button = evt.currentTarget;
+        if(menusCon.style.display == "none"){
+            menusCon.style.display = "block";
+            button.style.backgroundColor = "gray";
+        }
+        else{
+            menusCon.style.display = "none";
+            button.style.backgroundColor = "transparent";
+        }
+    }
+    _ev_showListM(evt){
+        var list = evt.currentTarget.nextElementSibling;
+        if(list.style.display == "none"){list.style.display = "inline-block";}
+        else{list.style.display = "none"}
+    }
     _ev_invertTxt(evt){
         //console.log(evt.target.style.color);
-        var targ = evt.target, bgOld = targ.style.backgroundColor,
+        var targ = evt.currentTarget, bgOld = targ.style.backgroundColor,
         cOld = targ.style.color;
         targ.style.backgroundColor = cOld;
         evt.target.style.color = bgOld;
     }
-
     _ev_showList(evt){
         var list = evt.target.nextElementSibling;
-        list.style.display = 'block';
-        //console.log(evt.target);
+        
+        if(list.style.display == "none"){
+            list.style.display = "block";
+            console.log(list);
+        }
+
     }
     _ev_hideList(evt){
         //console.log(evt.target);
         var list = evt.target.children[1];
-        list.style.display = 'none';
+        list.style.display = "none";
         
     }
 
     _setPageLinks(data,items){
-        for(var i=0;i<data.length;i++){
+        var iLim = data.length, jLim = data[0].length;
+        for(var i=0;i<iLim;i++){
             var jD = new Array(data[0].length);
-            for(var j=0;j<data[0].length;j++){
+            for(var j=0;j<jLim;j++){
                 jD[j] =  document.createElement('a');
                 jD[j].setAttribute('href',data[i][j][1]);
                 jD[j].innerHTML = data[i][j][0];
@@ -68,50 +104,80 @@ class NavBar {
         }
     }
 
+    _setupMenusButton(bar,menus){
+        this.menusButton = this._generateMenusButton();
+        this.menusContainer = document.createElement("div");
+        this.menusContainer.style.display = "none";
+        bar.insertBefore(this.menusButton,menus[0]);
+        bar.insertBefore(this.menusContainer,menus[0]);
+        var iLim = menus.length;
+        for(var i=0;i<iLim;i++){
+            this.menusContainer.appendChild(menus[i]);
+        }
+    }
+    _generateMenusButton(){
+        var buttonContainer = document.createElement("div");
+        setStyles(buttonContainer,[["position","relative"],["width","10%"],["height","100%"]]);
+        //console.log(buttonContainer.style.height)
+        //buttonContainer.style.width = buttonContainer.clientHeight+"px";
+        var buttBars = new Array(3);
+        for(var i=0;i<3;i++){
+            buttBars[i] = document.createElement("div");
+            buttonContainer.appendChild(buttBars[i]);            
+            setStyles(buttBars[i],[["position","absolute"],["width","80%"],["height","10%"],["top",(20+25*i)+"%"],["left","10%"],["backgroundColor","black"]]);
+            
+        }
+        return buttonContainer;
+    }
+
+
     _setStyles(data,bar,menus,labels,lists,items){
         console.log(menus.length);
         //this.bar.style.fontSize = FS;
-
+        var iLim = menus.length, jLim = items[0].length;
         setStyles(bar,data.bar);
-        for(var i=0;i<menus.length;i++){
+        for(var i=0;i<iLim;i++){
             setStyles(menus[i],data.menus);
-            if(menus[i].classList.contains('right')){menus[i].style.float = 'right';}
+            if(menus[i].classList.contains("right")&&this.mediaToggle){menus[i].style.float = "right";}
             setStyles(labels[i],data.labels);
             setStyles(lists[i],data.lists);
-            for(var j=0;j<items[0].length;j++){
+            for(var j=0;j<jLim;j++){
                 
                 setStyles(items[i][j],data.items);
             }
         }
     }
 
-    _getStyleData(bgC,txtC,fS,tog){
-        var data = {}, barHeight = this.menuLabels[0].clientHeight;
-        if(tog){//desktop
-            data.bar = [['height',barHeight+'px'],['fontSize',fS]];
-            data.menus = [['display','inline-block'],['verticalAlign','top']];
-            data.labels = [['color',txtC],['cursor','default']];
-            data.lists = [['display','none']];
-            data.items = [['backgroundColor',bgC],['color',txtC]];
+    _getStyleData(bgC,txtC,fS){
+        var data = {};
+        if(this.mediaToggle){//desktop
+            var barHeight = this.menuLabels[0].clientHeight;
+            data.bar = [["height",barHeight+"px"],["fontSize",fS]];
+            data.menus = [["display","inline-block"],["verticalAlign","top"]];
+            data.labels = [["color",txtC],["cursor","default"]];
+            data.lists = [["display","none"]];
+            data.items = [["backgroundColor",bgC],["color",txtC]];
         }
         else{//Mobile
-            data.bar = [['fontSize',fS]];
-            data.menus = [['display','block']];
-            data.labels = [['color',txtC],['cursor','default']];
-            data.lists = [['display','none']];
-            data.items = [['backgroundColor',bgC],['color',txtC]];
+            var barHeight = .1*this.W;
+            data.bar = [["height",barHeight+"px"],["fontSize",fS],["position","relative"]];
+            data.menus = [["display","block"]];
+            data.labels = [["color",txtC],["backgroundColor",bgC],["cursor","default"],["display","inline-block"],["verticalAlign","top"]];
+            data.lists = [["display","none"]];
+            data.items = [["backgroundColor",bgC],["color",txtC]];
         }
         return data;
     }
 
     _getItemData(items){
-        var iD = new Array(items.length);
-        var jD = new Array(items[0].length);
+        var iLim = items.length, jLim = items[0].length;
+        var iD = new Array(iLim);
+        var jD = new Array(jLim);
 
-        for(var i=0;i<items.length;i++){
+        for(var i=0;i<iLim;i++){
             var jD = new Array(items[0].length);
-            for(var j=0;j<items[0].length;j++){
-                jD[j] = items[i][j].innerHTML.split(',');
+            for(var j=0;j<jLim;j++){
+                jD[j] = items[i][j].innerHTML.split(",");
                 //console.log(jD);
             }
             iD[i] = jD;
@@ -121,31 +187,34 @@ class NavBar {
     }
 
     _getMenuItems(lists){
-        var listItems = new Array(lists.length);
-        for(var i=0;i<lists.length;i++){
+        var iLim = lists.length;
+        var listItems = new Array(iLim);
+        for(var i=0;i<iLim;i++){
             listItems[i] = Array.from(lists[i].children);
         }
         return listItems;
     }
 
     _getMenuLists(menuLabels){
-        var lists = new Array(menuLabels.length);
-        for(var i=0;i<menuLabels.length;i++){
+        var iLim = menuLabels.length;
+        var lists = new Array(iLim);
+        for(var i=0;i<iLim;i++){
             lists[i] = menuLabels[i].nextElementSibling;
         }
         return lists;
     }
 
-    _getMenuLabels(menu){
-        var labels = new Array(menu.length);
-        for(var i=0;i<menu.length;i++){
-            labels[i] = menu[i].firstElementChild;
+    _getMenuLabels(menus){
+        var iLim = menus.length
+        var labels = new Array(iLim);
+        for(var i=0;i<iLim;i++){
+            labels[i] = menus[i].firstElementChild;
         }
         return labels;
     }
 
-    _setMediaToggle(){
-        var w = window.innerWidth, h = window.innerHeight;
+    _setMediaToggle(w,h){
+        
         if((w/h)>1){return 1;}
         else{return 0;}
     }
