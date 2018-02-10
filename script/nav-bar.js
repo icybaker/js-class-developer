@@ -1,48 +1,57 @@
 class NavBar {
-    constructor(barContainerSelector,{itemBackgroundColor = '#fff', textColor = '#000', fontSize = '100%'}={}){
+    constructor(barContainerSelector,{centerLabels = true,mobileOff = false, desktopHeight = 0, mobileHeight = 0, backgroundColor1 = "#fff", backgroundColor2 = "#000", color1 = "#000", color2 = "#fff", fontSize = '100%', logoSrc = "none"}={}){
         this.W = window.innerWidth; 
         this.H = window.innerHeight;
-        this.mediaToggle = this._setMediaToggle(this.W,this.H);
+        this.mediaDesktop = this._getMedia(this.W,this.H);
         this.bar = document.querySelectorAll(barContainerSelector)[0];//1 div
-        this.menus = Array.from(this.bar.children);//array of divs
-        this.menuLabels = this._getMenuLabels(this.menus);//array of divs
-        this.menuLists = this._getMenuLists(this.menuLabels);//array of divs
-        this.menuItems = this._getMenuItems(this.menuLists);//array of array (2D) of divs
-        this.itemData = this._getItemData(this.menuItems);//3D array of the same cross-section as menuItems, but with each cell storing an array of form [(str)menu-item-text,(str)menu-item-page-src]
+        if(mobileOff && !this.mediaDesktop){this.bar.style.display = "none"}
+        else{
+            this.menus = Array.from(this.bar.children);//array of divs
+            this.menuLabels = this._getMenuLabels(this.menus);//array of divs
+            this.menuLists = this._getMenuLists(this.menuLabels);//array of divs
+            this.menuItems = this._getMenuItems(this.menuLists);//array of array (2D) of divs
+            this.itemData = this._getItemData(this.menuItems);//3D array of the same cross-section as menuItems, but with each cell storing an array of form [(str)menu-item-text,(str)menu-item-page-src]
+            
+            if(!this.mediaDesktop){this._setupMenusButton(this.bar,this.menus);}
+            this.styleData = this._getStyleData(backgroundColor1,color1,fontSize,centerLabels,desktopHeight,mobileHeight);//object whose properties are 2D arrays of style data for each class in the NavBar structure
+            this._setStyles(this.styleData,this.bar,this.menus,this.menuLabels,this.menuLists,this.menuItems);
+            this._setPageLinks(this.itemData,this.menuItems);
+            this._attachListeners(this.menus,this.menuLabels,this.menuItems,backgroundColor1,backgroundColor2,color1,color2);
+        }
         
-        if(!(this.mediaToggle)){this._setupMenusButton(this.bar,this.menus);}
-        this.styleData = this._getStyleData(itemBackgroundColor,textColor,fontSize);//object whose properties are 2D arrays of style data for each class in the NavBar structure
-        this._setStyles(this.styleData,this.bar,this.menus,this.menuLabels,this.menuLists,this.menuItems);
-        this._setPageLinks(this.itemData,this.menuItems);
-        this._attachListeners(this.menus,this.menuLabels, this.menuItems);
     }
-    _attachListeners(menus,labels,items){
-        if(this.mediaToggle){//desktop
+    _attachListeners(menus,labels,items,bgc1,bgc2,c1,c2){
+        if(this.mediaDesktop){//desktop
             var iLim = labels.length;            
             for(var i=0;i<iLim;i++){
-                labels[i].addEventListener('mouseenter',this._ev_showList,false);
-                menus[i].addEventListener('mouseleave',this._ev_hideList,false); 
+                labels[i].addEventListener('click',this._ev_showList,false);
+                labels[i].addEventListener('click',this._ev_switchColors,false);
+                labels[i].colors = ["transparent",bgc2,c1,c2]
+                
             }
             iLim = items.length;
             var jLim = items[0].length;
             for(i=0;i<iLim;i++){
                 for(var j=0;j<jLim;j++){
-                    items[i][j].addEventListener('mouseenter',this._ev_invertTxt,false);
-                    items[i][j].addEventListener('mouseleave',this._ev_invertTxt,false);
+                    items[i][j].addEventListener('mouseenter',this._ev_switchColors,false);
+                    items[i][j].addEventListener('mouseleave',this._ev_switchColors,false);
+                    items[i][j].colors = [bgc1,bgc2,c1,c2];
                 }
             }
         }
         else{//mobile
             var iLim = labels.length;  
             for(var i=0;i<iLim;i++){
-                labels[i].addEventListener("click",this._ev_showListM,false);
-                labels[i].addEventListener("click",this._ev_invertTxt,false);
+                labels[i].addEventListener("click",this._ev_showList,false);
+                labels[i].addEventListener("click",this._ev_switchColors,false);
+                labels[i].colors = ["transparent",bgc2,c1,c2]
             }
             iLim = items.length;
             var jLim = items[0].length;
             for(i=0;i<iLim;i++){
                 for(var j=0;j<items[0].length;j++){
-                    items[i][j].addEventListener('click',this._ev_invertTxt,false);
+                    items[i][j].addEventListener('click',this._ev_switchColors,false);
+                    items[i][j].colors = [bgc1,bgc2,c1,c2];
                 }
             }
             this.menusButton.addEventListener("click",this._ev_showMenus,false);
@@ -60,32 +69,23 @@ class NavBar {
             button.style.backgroundColor = "transparent";
         }
     }
-    _ev_showListM(evt){
-        var list = evt.currentTarget.nextElementSibling;
-        if(list.style.display == "none"){list.style.display = "inline-block";}
-        else{list.style.display = "none"}
-    }
-    _ev_invertTxt(evt){
-        //console.log(evt.target.style.color);
-        var targ = evt.currentTarget, bgOld = targ.style.backgroundColor,
-        cOld = targ.style.color;
-        targ.style.backgroundColor = cOld;
-        evt.target.style.color = bgOld;
-    }
     _ev_showList(evt){
-        var list = evt.target.nextElementSibling;
-        
-        if(list.style.display == "none"){
-            list.style.display = "block";
-            console.log(list);
-        }
-
+        var list = evt.currentTarget.nextElementSibling;
+        if(list.style.display == "none"){list.style.display = "block";}
+        else{list.style.display = "none";}
     }
-    _ev_hideList(evt){
-        //console.log(evt.target);
-        var list = evt.target.children[1];
-        list.style.display = "none";
-        
+    _ev_switchColors(evt){
+        //console.log(evt.target.style.color);
+        var targ = evt.currentTarget, targColor = targ.style.color;
+        console.log(targ);
+        if(targColor == targ.colors[2]){
+            targ.style.color = targ.colors[3];
+            targ.style.backgroundColor = targ.colors[1];
+        }
+        else{
+            targ.style.color = targ.colors[2];
+            targ.style.backgroundColor = targ.colors[0];
+        }
     }
 
     _setPageLinks(data,items){
@@ -138,7 +138,7 @@ class NavBar {
         setStyles(bar,data.bar);
         for(var i=0;i<iLim;i++){
             setStyles(menus[i],data.menus);
-            if(menus[i].classList.contains("right")&&this.mediaToggle){menus[i].style.float = "right";}
+            if(menus[i].classList.contains("right")&&this.mediaDesktop){menus[i].style.float = "right";}
             setStyles(labels[i],data.labels);
             setStyles(lists[i],data.lists);
             for(var j=0;j<jLim;j++){
@@ -148,21 +148,24 @@ class NavBar {
         }
     }
 
-    _getStyleData(bgC,txtC,fS){
+    _getStyleData(bgC,txtC,fS,cntrLbls,dH,mH){
         var data = {};
-        if(this.mediaToggle){//desktop
-            var barHeight = this.menuLabels[0].clientHeight;
-            data.bar = [["height",barHeight+"px"],["fontSize",fS]];
+        if(this.mediaDesktop){//desktop
+            if(dH == 0){var barHeight = this.menuLabels[0].clientHeight+"px";}
+            else{var barHeight = dH;}
+            data.bar = [["height",barHeight],["fontSize",fS]];
             data.menus = [["display","inline-block"],["verticalAlign","top"]];
-            data.labels = [["color",txtC],["cursor","default"]];
+            if(cntrLbls){data.labels = [["color",txtC],["cursor","default"],["height",barHeight],["line-height",barHeight],["text-align","center"]];}
+            else{data.labels = [["color",txtC],["cursor","default"],["height",barHeight]];}
             data.lists = [["display","none"]];
             data.items = [["backgroundColor",bgC],["color",txtC]];
         }
-        else{//Mobile
-            var barHeight = .1*this.W;
-            data.bar = [["height",barHeight+"px"],["fontSize",fS],["position","relative"]];
+        else{//mobile
+            if(mH == 0){var barHeight = (.1*this.W)+"px";}
+            else{var barHeight = mH;}
+            data.bar = [["height",barHeight],["fontSize",fS],["position","relative"]];
             data.menus = [["display","block"]];
-            data.labels = [["color",txtC],["backgroundColor",bgC],["cursor","default"],["display","inline-block"],["verticalAlign","top"]];
+            data.labels = [["color",txtC],["backgroundColor",bgC],["display","inline-block"],["verticalAlign","top"]];
             data.lists = [["display","none"]];
             data.items = [["backgroundColor",bgC],["color",txtC]];
         }
@@ -213,10 +216,10 @@ class NavBar {
         return labels;
     }
 
-    _setMediaToggle(w,h){
+    _getMedia(w,h){
         
-        if((w/h)>1){return 1;}
-        else{return 0;}
+        if((w/h)>1){return true;}
+        else{return false;}
     }
 
     static _doc_(){
